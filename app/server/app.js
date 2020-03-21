@@ -115,7 +115,7 @@ var server = require('http').Server(app)
 var myutil = require('./util')
 myutil.setDefaultCredentials(config.user.name, config.user.password, config.user.privatekey)
 var validator = require('validator')
-var io = require('socket.io')(server, { serveClient: false, path: '/ssh/socket.io' })
+var io = require('socket.io')(server, { serveClient: false, path: '/foo/ssh/socket.io' })
 var socket = require('./socket')
 var expressOptions = require('./expressOptions')
 var favicon = require('serve-favicon');
@@ -128,18 +128,20 @@ if (config.accesslog) app.use(logger('common'))
 app.disable('x-powered-by')
 
 // static files
-app.use('/ssh', express.static(publicPath, expressOptions))
+app.use('/foo/ssh', express.static(publicPath, expressOptions))
 
 // favicon from root if being pre-fetched by browser to prevent a 404
 app.use(favicon(path.join(publicPath,'favicon.ico')));
 
-app.get('/ssh/reauth', function (req, res, next) {
+app.get('/foo/ssh/reauth', function (req, res, next) {
+  console.log('get /foo/ssh/reauth')
   var r = req.headers.referer || '/'
   res.status(401).send('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=' + r + '"></head><body bgcolor="#000"></body></html>')
 })
 
 // eslint-disable-next-line complexity
-app.get('/ssh/host/:host?', function (req, res, next) {
+app.get('/foo/ssh/host/:host?', function (req, res, next) {
+  console.log('get /foo/ssh/host/', req.params.host)
   res.sendFile(path.join(path.join(publicPath, 'client.htm')))
   // capture, assign, and validated variables
   req.session.ssh = {
@@ -183,6 +185,7 @@ app.get('/ssh/host/:host?', function (req, res, next) {
 
 // express error handling
 app.use(function (req, res, next) {
+  console.log("Sorry can't find that", req.path)
   res.status(404).send("Sorry can't find that!")
 })
 
@@ -194,12 +197,16 @@ app.use(function (err, req, res, next) {
 // socket.io
 // expose express session with socket.request.session
 io.use(function (socket, next) {
+  console.log('use socket, !!socket.request.res', !!socket.request.res);
   (socket.request.res) ? session(socket.request, socket.request.res, next)
     : next(next)
 })
 
 // bring up socket
-io.on('connection', socket)
+io.on('connection', (...args) => {
+  console.log('connection, args.length', args.length)
+  socket(...args)
+})
 
 // safe shutdown
 var shutdownMode = false
@@ -212,6 +219,7 @@ function safeShutdownGuard (req, res, next) {
 }
 
 io.on('connection', function (socket) {
+  console.log('connection, !!socket', !!socket)
   connectionCount++
 
   socket.on('disconnect', function () {
