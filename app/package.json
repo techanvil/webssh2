@@ -1,10 +1,12 @@
 {
   "name": "@techanvil/webssh2",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "ignore": [
     ".gitignore"
   ],
-  "bin": "./index.js",
+  "bin": {
+    "webssh2": "index.js"
+  },
   "description": "A Websocket to SSH2 gateway using term.js, socket.io, ssh2, and express",
   "homepage": "https://github.com/billchurch/WebSSH2",
   "keywords": [
