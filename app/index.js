@@ -10,8 +10,14 @@
  *
  */
 
-var config = require('./server/app').config
-var server = require('./server/app').server
+const express = require('express');
+const { setupServer, runServer } = require('./server/app')
+
+const app = express();
+const { server, config } = setupServer(app)
+
+//var config = require('./server/app').config
+//var server = require('./server/app').server
 
 server.listen({ host: config.listen.ip, port: config.listen.port })
 
