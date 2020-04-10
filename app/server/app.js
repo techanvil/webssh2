@@ -132,16 +132,12 @@ function setupServer (app) {
   })
 
   // eslint-disable-next-line complexity
-  app.get('/ssh/host/:host?', function (req, res, next) {
-    console.log('get /ssh/host/', req.params.host)
+  // app.get('/ssh/host/:host?', function (req, res, next) {
+  app.get('/ssh/connect', function (req, res, next) {
     // capture, assign, and validated variables
     req.session.ssh = {
-      host: (validator.isIP(req.params.host + '') && req.params.host) ||
-        (validator.isFQDN(req.params.host) && req.params.host) ||
-        (/^(([a-z]|[A-Z]|[0-9]|[!^(){}\-_~])+)?\w$/.test(req.params.host) &&
-        req.params.host) || config.ssh.host,
-      port: (validator.isInt(req.query.port + '', { min: 1, max: 65535 }) &&
-        req.query.port) || config.ssh.port,
+      host: config.ssh.host,
+      port: config.ssh.port,
       localAddress: config.ssh.localAddress,
       localPort: config.ssh.localPort,
       header: {
