@@ -26,6 +26,8 @@ export function setupSocket(term) {
     path: '/ssh/socket.io'
   })
 
+  term.socket = socket;
+
   term.onData(function (data) {
     socket.emit('data', data)
   })
@@ -39,6 +41,7 @@ export function setupSocket(term) {
 
   socket.on('connect', function () {
     socket.emit('geometry', term.cols, term.rows)
+    socket.emit('resize', { cols: term.cols, rows: term.rows })
   })
 
   socket.on('setTerminalOpts', function (data) {
